@@ -17,3 +17,19 @@ Download the [Windows IOT Core Dashboard](https://iottools.blob.core.windows.net
 ## Install Visual Studio 2017 Community Edition
 
 Follow this guide here to install [Visual Studio 2017 CE](https://tutorials.visualstudio.com/cpp-console/install)
+
+## Download the Windows IOT Core Project Templates
+
+Download and install the [Windows IoT Core Project Templates for VS 2017](https://marketplace.visualstudio.com/items?itemName=MicrosoftIoT.WindowsIoTCoreProjectTemplatesforVS15)
+
+## Install Windows IoT Core on SD Card
+
+1. Launch the Windows IoT Core Dashboard App
+2. Select `Set up a new device`.
+3. Select `Broadcomm [Raspberry Pi 2 & 3]` as the Device Type.
+4. Select `Windows 10 IoT Core` as the OS Build.
+5. Select the Drive Letter with your SD Card for Drive.
+6. Give the device a meaningful device name, I chose `busy-box-pi`.
+7. Choose an administrator password.
+8. Accept the license terms.
+9. Click `Download and install`
