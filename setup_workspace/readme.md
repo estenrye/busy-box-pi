@@ -33,3 +33,7 @@ Download and install the [Windows IoT Core Project Templates for VS 2017](https:
 7. Choose an administrator password.
 8. Accept the license terms.
 9. Click `Download and install`
+
+## Enable Remote Debugging Tools on the Raspberry Pi
+
+1. Launch a Universal Windows Application using remote debugging in Visual Studio CE
