@@ -30,11 +30,15 @@
 #ifndef ADAFRUIT_PN532_H
 #define ADAFRUIT_PN532_H
 
-#if ARDUINO >= 100
- #include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
+// #if ARDUINO >= 100
+//  #include "Arduino.h"
+// #else
+//  #include "WProgram.h"
+// #endif
+
+// Windows 10 IOT Core
+#include "stdint.h"
+#define byte uint8_t
 
 #define PN532_PREAMBLE                      (0x00)
 #define PN532_STARTCODE1                    (0x00)

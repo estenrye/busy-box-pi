@@ -42,20 +42,27 @@
              uint8_t mifareultralight_ReadPage (uint8_t page, uint8_t * buffer)
 */
 /**************************************************************************/
-#if ARDUINO >= 100
- #include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
+#include "string.h"
+#include "stdlib.h"
+#include <chrono>
+#define delay _sleep
+#define HIGH 1
+#define LOW 0
 
-#include <Wire.h>
-#if defined(__AVR__) || defined(__i386__) || defined(ARDUINO_ARCH_SAMD) || defined(ESP8266) || defined(ARDUINO_ARCH_STM32)
- #define WIRE Wire
-#else // Arduino Due
- #define WIRE Wire1
-#endif
+// #if ARDUINO >= 100
+//  #include "Arduino.h"
+// #else
+//  #include "WProgram.h"
+// #endif
 
-#include <SPI.h>
+// #include <Wire.h>
+// #if defined(__AVR__) || defined(__i386__) || defined(ARDUINO_ARCH_SAMD) || defined(ESP8266) || defined(ARDUINO_ARCH_STM32)
+//  #define WIRE Wire
+// #else // Arduino Due
+//  #define WIRE Wire1
+// #endif
+
+// #include <SPI.h>
 
 #include "Adafruit_PN532.h"
 
@@ -67,15 +74,17 @@ byte pn532response_firmwarevers[] = {0x00, 0xFF, 0x06, 0xFA, 0xD5, 0x03};
 // #define MIFAREDEBUG
 
 // If using Native Port on Arduino Zero or Due define as SerialUSB
-#define PN532DEBUGPRINT Serial
+#define PN532DEBUsGPRINT Serial1
+// TODO: Determine Debug Endpoints
 //#define PN532DEBUGPRINT SerialUSB
 
 // Hardware SPI-specific configuration:
-#ifdef SPI_HAS_TRANSACTION
-    #define PN532_SPI_SETTING SPISettings(1000000, LSBFIRST, SPI_MODE0)
-#else
-    #define PN532_SPI_CLOCKDIV SPI_CLOCK_DIV16
-#endif
+// #ifdef SPI_HAS_TRANSACTION
+//     #define PN532_SPI_SETTING SPISettings(1000000, LSBFIRST, SPI_MODE0)
+// #else
+//     #define PN532_SPI_CLOCKDIV SPI_CLOCK_DIV16
+// #endif
+// TODO: Handle Hardware SPI-specific configuration.
 
 #define PN532_PACKBUFFSIZ 64
 byte pn532_packetbuffer[PN532_PACKBUFFSIZ];
@@ -93,11 +102,13 @@ byte pn532_packetbuffer[PN532_PACKBUFFSIZ];
 /**************************************************************************/
 static inline void i2c_send(uint8_t x)
 {
-  #if ARDUINO >= 100
-    WIRE.write((uint8_t)x);
-  #else
-    WIRE.send(x);
-  #endif
+  // #if ARDUINO >= 100
+  //   WIRE.write((uint8_t)x);
+  // #else
+  //   WIRE.send(x);
+  // #endif
+
+  // TODO: Define Logic for i2c_send
 }
 
 /**************************************************************************/
@@ -107,11 +118,13 @@ static inline void i2c_send(uint8_t x)
 /**************************************************************************/
 static inline uint8_t i2c_recv(void)
 {
-  #if ARDUINO >= 100
-    return WIRE.read();
-  #else
-    return WIRE.receive();
-  #endif
+  // #if ARDUINO >= 100
+  //   return WIRE.read();
+  // #else
+  //   return WIRE.receive();
+  // #endif
+
+  // TODO: Define Logic for i2c_recv
 }
 
 /**************************************************************************/
@@ -134,10 +147,12 @@ Adafruit_PN532::Adafruit_PN532(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t 
   _usingSPI(true),
   _hardwareSPI(false)
 {
-  pinMode(_ss, OUTPUT);
-  pinMode(_clk, OUTPUT);
-  pinMode(_mosi, OUTPUT);
-  pinMode(_miso, INPUT);
+  // pinMode(_ss, OUTPUT);
+  // pinMode(_clk, OUTPUT);
+  // pinMode(_mosi, OUTPUT);
+  // pinMode(_miso, INPUT);
+
+  // TODO: Define Logic for Adafruit_PN532(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss)
 }
 
 /**************************************************************************/
@@ -158,8 +173,10 @@ Adafruit_PN532::Adafruit_PN532(uint8_t irq, uint8_t reset):
   _usingSPI(false),
   _hardwareSPI(false)
 {
-  pinMode(_irq, INPUT);
-  pinMode(_reset, OUTPUT);
+  // pinMode(_irq, INPUT);
+  // pinMode(_reset, OUTPUT);
+
+  // TODO: Define Logic for Adafruit_PN532(uint8_t irq, uint8_t reset)
 }
 
 /**************************************************************************/
@@ -179,7 +196,9 @@ Adafruit_PN532::Adafruit_PN532(uint8_t ss):
   _usingSPI(true),
   _hardwareSPI(true)
 {
-  pinMode(_ss, OUTPUT);
+  // pinMode(_ss, OUTPUT);
+
+  // TODO: Define Logic for Adafruit_PN532(uint8_t ss)
 }
 
 /**************************************************************************/
@@ -191,19 +210,21 @@ void Adafruit_PN532::begin() {
   if (_usingSPI) {
     // SPI initialization
     if (_hardwareSPI) {
-      SPI.begin();
+      // SPI.begin();
 
-      #ifdef SPI_HAS_TRANSACTION
-        SPI.beginTransaction(PN532_SPI_SETTING);
-      #else
-        SPI.setDataMode(SPI_MODE0);
-        SPI.setBitOrder(LSBFIRST);
-        SPI.setClockDivider(PN532_SPI_CLOCKDIV);
-      #endif
+      // #ifdef SPI_HAS_TRANSACTION
+      //   SPI.beginTransaction(PN532_SPI_SETTING);
+      // #else
+      //   SPI.setDataMode(SPI_MODE0);
+      //   SPI.setBitOrder(LSBFIRST);
+      //   SPI.setClockDivider(PN532_SPI_CLOCKDIV);
+      // #endif
+
+      // TODO: Define Logic for Hardware SPI Initialization.
     }
-    digitalWrite(_ss, LOW);
+    // digitalWrite(_ss, LOW);
 
-    delay(1000);
+    // delay(1000);
 
     // not exactly sure why but we have to send a dummy command to get synced up
     pn532_packetbuffer[0] = PN532_COMMAND_GETFIRMWAREVERSION;
@@ -211,22 +232,24 @@ void Adafruit_PN532::begin() {
 
     // ignore response!
 
-    digitalWrite(_ss, HIGH);
+    // digitalWrite(_ss, HIGH);
     #ifdef SPI_HAS_TRANSACTION
-      if (_hardwareSPI) SPI.endTransaction();
+      // if (_hardwareSPI) SPI.endTransaction();
     #endif
   }
   else {
     // I2C initialization.
-    WIRE.begin();
+    // WIRE.begin();
 
-    // Reset the PN532
-    digitalWrite(_reset, HIGH);
-    digitalWrite(_reset, LOW);
-    delay(400);
-    digitalWrite(_reset, HIGH);
-    delay(10);  // Small delay required before taking other actions after reset.
-                // See timing diagram on page 209 of the datasheet, section 12.23.
+    // // Reset the PN532
+    // digitalWrite(_reset, HIGH);
+    // digitalWrite(_reset, LOW);
+    // delay(400);
+    // digitalWrite(_reset, HIGH);
+    // delay(10);  // Small delay required before taking other actions after reset.
+    //             // See timing diagram on page 209 of the datasheet, section 12.23.
+
+    // TODO: Define Logic for I2C
   }
 }
 
