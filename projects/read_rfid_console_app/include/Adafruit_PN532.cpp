@@ -44,10 +44,12 @@
 /**************************************************************************/
 #include "string.h"
 #include "stdlib.h"
-#include <chrono>
-#define delay _sleep
+#include "Windows.h"
+// #include <chrono>
+#define delay Sleep
 #define HIGH 1
 #define LOW 0
+#define HEX "xx"
 
 // #if ARDUINO >= 100
 //  #include "Arduino.h"
