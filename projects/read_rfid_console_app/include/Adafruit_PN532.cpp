@@ -45,12 +45,14 @@
 #include "string.h"
 #include "stdlib.h"
 #include "Windows.h"
+#include "windows.devices.serialcommunication.h"
+
 #define delay Sleep
 #define HIGH 1
 #define LOW 0
 #define HEX "xx"
-
-// #if ARDUINO >= 100
+SerialDevice.GetDeviceSelector("UART0");
+//SerialDevice. #if ARDUINO >= 100
 //  #include "Arduino.h"
 // #else
 //  #include "WProgram.h"
