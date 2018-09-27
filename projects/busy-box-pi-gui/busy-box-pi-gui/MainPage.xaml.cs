@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
+using UARTLogger;
+
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace busy_box_pi_gui
@@ -22,9 +24,28 @@ namespace busy_box_pi_gui
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private Logger log = null;
+
         public MainPage()
         {
             this.InitializeComponent();
+        }
+
+        private async void logWrite_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (log == null)
+                {
+                    log = new Logger();
+                    await log.Initialize();
+                }
+                await log.WriteLog("Hello World!\n");
+            }
+            catch (Exception ex)
+            {
+                this.logOutput.Text = ex.Message;
+            }
         }
     }
 }

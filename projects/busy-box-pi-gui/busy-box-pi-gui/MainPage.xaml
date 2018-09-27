@@ -10,5 +10,7 @@
 
     <Grid>
         <TextBlock Text="Hello World" FontSize="72" FontWeight="Bold" />
+        <Button Name="logWrite" Content="Write Log" Click="logWrite_Click" HorizontalAlignment="Left" Margin="55,101,0,0" VerticalAlignment="Top" />
+        <TextBlock Name="logOutput" Text="Log" Margin="10,143,455,265" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Grid>
 </Page>
