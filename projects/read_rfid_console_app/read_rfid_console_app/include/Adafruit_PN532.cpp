@@ -51,7 +51,11 @@
 #define HIGH 1
 #define LOW 0
 #define HEX "xx"
-SerialDevice.GetDeviceSelector("UART0");
+
+using namespace ABI::Windows::Devices::SerialCommunication;
+
+SerialDevice^ serialPort = nullptr;
+Windows::Devices::SerialCommunication::SerialDevice::GetDeviceSelector("UART0");
 //SerialDevice. #if ARDUINO >= 100
 //  #include "Arduino.h"
 // #else
