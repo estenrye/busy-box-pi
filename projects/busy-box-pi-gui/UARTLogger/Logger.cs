@@ -44,6 +44,7 @@ namespace UARTLogger
             if (serialPort != null && logText.Length > 0)
             {
                 dataWriteObject.WriteString(logText);
+                dataWriteObject.WriteString("\n");
                 return await dataWriteObject.StoreAsync();
             }
             return 0;
