@@ -10,7 +10,7 @@ namespace Adafruit_PN532
     {
         // Generic PN532 functions
         bool SAMConfig();
-        UInt32 getFirmwareVersion();
+        Task<uint> GetFirmwareVersion();
         bool sendCommandCheckAck(byte[] cmd, uint cmdlen, UInt16 timeout = 1000);
         bool writeGPIO(byte pinstate);
         byte readGPIO();
@@ -18,7 +18,7 @@ namespace Adafruit_PN532
 
         // ISO14443A functions
         bool readPassiveTargetID(byte cardbaudrate, byte[] uid, byte[] uidLength, ushort timeout = 0); //timeout 0 means no timeout - will block forever.
-        bool InDataExchange(byte[] send, uint sendLength, byte[] response, uint responseLength);
+        Task<bool> InDataExchange(byte[] send, uint sendLength, byte[] response, uint responseLength);
         bool inListPassiveTarget();
 
         // Mifare Classic functions

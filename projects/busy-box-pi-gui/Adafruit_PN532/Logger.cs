@@ -39,12 +39,49 @@ namespace UARTLogger
                 dataWriteObject = new DataWriter(serialPort.OutputStream);
             }
         }
-        public async Task<UInt32> WriteLog(string logText)
+        public async Task<uint> WriteLog(string logText)
+        {
+            return await println(logText);
+        }
+
+        public async Task<uint> println(string logText)
         {
             if (serialPort != null && logText.Length > 0)
             {
                 dataWriteObject.WriteString(logText);
                 dataWriteObject.WriteString("\n");
+                return await dataWriteObject.StoreAsync();
+            }
+            return 0;
+        }
+
+        public async Task<uint> println(ushort logText)
+        {
+            if (serialPort != null)
+            {
+                dataWriteObject.WriteString($"{logText}");
+                dataWriteObject.WriteString("\n");
+                return await dataWriteObject.StoreAsync();
+            }
+            return 0;
+        }
+
+        public async Task<uint> println(int logText)
+        {
+            if (serialPort != null)
+            {
+                dataWriteObject.WriteString($"{logText}");
+                dataWriteObject.WriteString("\n");
+                return await dataWriteObject.StoreAsync();
+            }
+            return 0;
+        }
+
+        public async Task<uint> print(string logText)
+        {
+            if (serialPort != null && logText.Length > 0)
+            {
+                dataWriteObject.WriteString(logText);
                 return await dataWriteObject.StoreAsync();
             }
             return 0;

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using UARTLogger;
 
 namespace Adafruit_PN532
 {
@@ -11,44 +13,116 @@ namespace Adafruit_PN532
         // Software SPI
         public Adafruit_PN532(int clk, int miso, int mosi, int ss)
         {
+            _clk = clk;
+            _miso = miso;
+            _mosi = mosi;
+            _ss = ss;
+            _irq = 0;
+            _reset = 0;
+            _usingSPI = true;
+            _hardwareSPI = false;
+            // TODO: initialize pins
         }
 
         // Hardware I2C
         public Adafruit_PN532(int irq, int reset)
         {
-
+            _clk = 0;
+            _miso = 0;
+            _mosi = 0;
+            _ss = 0;
+            _irq = irq;
+            _reset = reset;
+            _usingSPI = false;
+            _hardwareSPI = false;
+            // TODO: initialize pins
         }
 
         // Hardware SPI
         public Adafruit_PN532(int ss)
         {
-
+            _clk = 0;
+            _miso = 0;
+            _mosi = 0;
+            _ss = ss;
+            _irq = 0;
+            _reset = 0;
+            _usingSPI = true;
+            _hardwareSPI = true;
+            // TODO: initialize pins
         }
 
         public bool SAMConfig()
         {
-            return false;
+            pn532_packetbuffer[0] = Constants.PN532_COMMAND_SAMCONFIGURATION;
+            pn532_packetbuffer[1] = 0x01; // normal mode;
+            pn532_packetbuffer[2] = 0x14; // timeout 50ms * 20 = 1 second
+            pn532_packetbuffer[3] = 0x01; // use IRQ pin!
+
+            if (!sendCommandCheckAck(pn532_packetbuffer, 4))
+                return false;
+
+            // read data packet
+            ReadData(pn532_packetbuffer, 8);
+
+            int offset = _usingSPI ? 5 : 6;
+            return (pn532_packetbuffer[offset] == 0x15);
         }
 
-        public int GetFirmwareVersion()
+        public async Task<uint> GetFirmwareVersion()
         {
-            return -1;
+            uint response;
+
+            pn532_packetbuffer[0] = Constants.PN532_COMMAND_GETFIRMWAREVERSION;
+
+            if (!sendCommandCheckAck(pn532_packetbuffer, 1))
+            {
+                return 0;
+            }
+
+            // read data packet
+            ReadData(pn532_packetbuffer, 12);
+
+            // check some basic stuff
+            if (0 != strncmp(pn532_packetbuffer, pn532response_firmwarevers, 6))
+            {
+                await PN532DEBUGPRINT.println("Firmware doesn't match!");
+                return 0;
+            }
+
+            int offset = _usingSPI ? 6 : 7;  // Skip a response byte when using I2C to ignore extra data.
+            response = pn532_packetbuffer[offset++];
+            response <<= 8;
+            response |= pn532_packetbuffer[offset++];
+            response <<= 8;
+            response |= pn532_packetbuffer[offset++];
+            response <<= 8;
+            response |= pn532_packetbuffer[offset++];
+
+            return response;
         }
 
-        public bool SendCommandCheckAck(byte[] cmd, int cmdlen, UInt16 timeout = 1000)
+        private int strncmp(byte[] a, byte[] b, ushort n)
         {
-            return false;
+            var result = 0;
+            for (var i = 0; i < n; i++)
+            {
+                if ((char)a[i] == (char)b[i]) continue;
+
+                if ((char)a[i] < (char)b[i])
+                {
+                    result = -i;
+                    break;
+                }
+                else
+                {
+                    result = i;
+                    break;
+                }
+            }
+            return result;
         }
 
-        public bool WriteGPIO(int pinstate)
-        {
-            return false;
-        }
-
-        public uint getFirmwareVersion()
-        {
-            throw new NotImplementedException();
-        }
 
         public bool sendCommandCheckAck(byte[] cmd, uint cmdlen, ushort timeout = 1000)
         {
@@ -75,11 +149,11 @@ namespace Adafruit_PN532
             throw new NotImplementedException();
         }
 
-        public bool InDataExchange(byte[] send, uint sendLength, byte[] response, uint responseLength)
+        public async Task<bool> InDataExchange(byte[] send, uint sendLength, byte[] response, uint responseLength)
         {
             if (sendLength > Constants.PN532_PACKBUFFSIZ - 2)
             {
-                PN532DEBUGPRINT.println(F("APDU length too long for packet buffer"));
+                await PN532DEBUGPRINT.println("APDU length too long for packet buffer");
                 return false;
             }
             uint i;
@@ -93,13 +167,13 @@ namespace Adafruit_PN532
 
             if (!sendCommandCheckAck(pn532_packetbuffer, sendLength + 2, 1000))
             {
-                PN532DEBUGPRINT.println(F("Could not send APDU"));
+                await PN532DEBUGPRINT.println("Could not send APDU");
                 return false;
             }
 
-            if (!waitready(1000))
+            if (!await waitready(1000))
             {
-                PN532DEBUGPRINT.println(F("Response never received for APDU..."));
+                await PN532DEBUGPRINT.println("Response never received for APDU...");
                 return false;
             }
 
@@ -107,47 +181,47 @@ namespace Adafruit_PN532
 
             if (pn532_packetbuffer[0] == 0 && pn532_packetbuffer[1] == 0 && pn532_packetbuffer[2] == 0xff)
             {
-                uint length = pn532_packetbuffer[3];
-                if (pn532_packetbuffer[4] != (uint8_t)(~length + 1))
+                byte length = pn532_packetbuffer[3];
+                if (pn532_packetbuffer[4] != (uint)(~length + 1))
                 {
-                    PN532DEBUGPRINT.println(F("Length check invalid"));
-                    PN532DEBUGPRINT.println(length, HEX);
-                    PN532DEBUGPRINT.println((~length) + 1, HEX);
+                    await PN532DEBUGPRINT.println("Length check invalid");
+                    await PN532DEBUGPRINT.println(length);
+                    await PN532DEBUGPRINT.println((~length) + 1);
                     return false;
                 }
-                if (pn532_packetbuffer[5] == PN532_PN532TOHOST && pn532_packetbuffer[6] == PN532_RESPONSE_INDATAEXCHANGE)
+                if (pn532_packetbuffer[5] == Constants.PN532_PN532TOHOST && pn532_packetbuffer[6] == Constants.PN532_RESPONSE_INDATAEXCHANGE)
                 {
                     if ((pn532_packetbuffer[7] & 0x3f) != 0)
                     {
-                        PN532DEBUGPRINT.println(F("Status code indicates an error"));
+                        await PN532DEBUGPRINT.println("Status code indicates an error");
                         return false;
                     }
 
                     length -= 3;
 
-                    if (length > *responseLength)
+                    if (length > responseLength)
                     {
-                        length = *responseLength; // silent truncation...
+                        length = (byte)responseLength; // silent truncation...
                     }
 
                     for (i = 0; i < length; ++i)
                     {
                         response[i] = pn532_packetbuffer[8 + i];
                     }
-                    *responseLength = length;
+                    responseLength = length;
 
                     return true;
                 }
                 else
                 {
-                    PN532DEBUGPRINT.print(F("Don't know how to handle this command: "));
-                    PN532DEBUGPRINT.println(pn532_packetbuffer[6], HEX);
+                    await PN532DEBUGPRINT.print("Don't know how to handle this command: ");
+                    await PN532DEBUGPRINT.println(pn532_packetbuffer[6]);
                     return false;
                 }
             }
             else
             {
-                PN532DEBUGPRINT.println(F("Preamble missing"));
+                await PN532DEBUGPRINT.println("Preamble missing");
                 return false;
             }
         }
@@ -236,6 +310,9 @@ namespace Adafruit_PN532
         bool _usingSPI;     // True if using SPI, false if using I2C.
         bool _hardwareSPI;  // True is using hardware SPI, false if using software SPI.
         private byte[] pn532_packetbuffer = new byte[Constants.PN532_PACKBUFFSIZ];
+        private Logger PN532DEBUGPRINT = new Logger();
+        private byte[] pn532ack = { 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
+        private byte[] pn532response_firmwarevers = { 0x00, 0xFF, 0x06, 0xFA, 0xD5, 0x03 };
 
         // Low level communication functions that handle both SPI and I2C.
         private void ReadData(byte[] buff, uint n)
@@ -253,9 +330,23 @@ namespace Adafruit_PN532
             throw new NotImplementedException();
         }
 
-        bool WaitReady(ushort timeout)
+        private async Task<bool> waitready(ushort timeout)
         {
-            throw new NotImplementedException();
+            ushort timer = 0;
+            while (!isready())
+            {
+                if (timeout != 0)
+                {
+                    timer += 10;
+                    if (timer > timeout)
+                    {
+                        await PN532DEBUGPRINT.println("TIMEOUT!");
+                        return false;
+                    }
+                }
+                Thread.Sleep(10);
+            }
+            return true;
         }
 
         bool ReadAck()
@@ -273,5 +364,6 @@ namespace Adafruit_PN532
         {
             throw new NotImplementedException();
         }
+
     }
 }
