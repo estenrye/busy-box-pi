@@ -10,6 +10,12 @@ using Windows.Storage.Streams;
 
 namespace UARTLogger
 {
+    public enum ByteFormat
+    {
+        DEC,
+        HEX
+    }
+
     public class Logger
     {
         private SerialDevice serialPort = null;
@@ -39,52 +45,93 @@ namespace UARTLogger
                 dataWriteObject = new DataWriter(serialPort.OutputStream);
             }
         }
-        public async Task<uint> WriteLog(string logText)
+        public uint WriteLog(string logText)
         {
-            return await println(logText);
+            return print($"{logText}\n");
         }
 
-        public async Task<uint> println(string logText)
+        public uint println(string logText)
+        {
+            return println($"{logText}");
+        }
+
+        public uint println(ushort logText)
+        {
+            return println($"{logText}");
+        }
+
+        public uint println(int logText)
+        {
+            return println($"{logText}");
+        }
+
+        public uint print(byte data, ByteFormat format)
+        {
+            return print(formatString(data, format));
+        }
+
+        public uint println(byte data, ByteFormat format)
+        {
+            return print(formatString(data, format));
+        }
+
+
+        public uint print(string logText)
         {
             if (serialPort != null && logText.Length > 0)
             {
                 dataWriteObject.WriteString(logText);
-                dataWriteObject.WriteString("\n");
-                return await dataWriteObject.StoreAsync();
+                return dataWriteObject.StoreAsync().GetResults();
             }
             return 0;
         }
 
-        public async Task<uint> println(ushort logText)
+        public uint println()
         {
-            if (serialPort != null)
-            {
-                dataWriteObject.WriteString($"{logText}");
-                dataWriteObject.WriteString("\n");
-                return await dataWriteObject.StoreAsync();
-            }
-            return 0;
+            return print("\n");
         }
 
-        public async Task<uint> println(int logText)
+        string formatString(byte data, ByteFormat format)
         {
-            if (serialPort != null)
+            switch (format)
             {
-                dataWriteObject.WriteString($"{logText}");
-                dataWriteObject.WriteString("\n");
-                return await dataWriteObject.StoreAsync();
+                case ByteFormat.DEC:
+                    var value = Convert.ToUInt32(data);
+                    return $"{value}";
+                case ByteFormat.HEX:
+                    return data.ToString("X").PadLeft(2, '0');
             }
-            return 0;
+            return "";
         }
 
-        public async Task<uint> print(string logText)
+        string formatString(byte[] data, ByteFormat format)
         {
-            if (serialPort != null && logText.Length > 0)
+            switch (format)
             {
-                dataWriteObject.WriteString(logText);
-                return await dataWriteObject.StoreAsync();
+                case ByteFormat.DEC:
+                    ushort value = data[0];
+                    value <<= 8;
+                    value |= data[1];
+                    return $"{value}\n";
+                case ByteFormat.HEX:
+                    var stringValue = string.Empty;
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        stringValue += data[i].ToString("X").PadLeft(2, '0');
+                    }
+                    return stringValue;
             }
-            return 0;
+            return "";
+        }
+
+        public uint print(byte[] data, ByteFormat format)
+        {
+            return print(formatString(data, format));
+        }
+
+        public uint println(byte[] data, ByteFormat format)
+        {
+            return println(formatString(data, format));
         }
     }
 }

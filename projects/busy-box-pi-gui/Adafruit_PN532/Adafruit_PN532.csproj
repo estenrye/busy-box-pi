@@ -108,9 +108,9 @@
   <ItemGroup>
     <Compile Include="Adafruit_PN532.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="IAdafruit_PN532.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tag.cs" />
     <EmbeddedResource Include="Properties\Adafruit_PN532.rd.xml" />
   </ItemGroup>
   <ItemGroup>

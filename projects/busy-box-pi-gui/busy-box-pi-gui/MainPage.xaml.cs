@@ -40,7 +40,7 @@ namespace busy_box_pi_gui
                     log = new Logger();
                     await log.Initialize();
                 }
-                await log.WriteLog("Hello World!");
+                log.WriteLog("Hello World!");
             }
             catch (Exception ex)
             {

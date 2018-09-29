@@ -131,6 +131,12 @@
       <Version>6.1.7</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Adafruit_PN532\Adafruit_PN532.csproj">
+      <Project>{b28429b7-1d6c-469c-989d-8b49121d33b9}</Project>
+      <Name>Adafruit_PN532</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
