@@ -12,3 +12,8 @@
 - [Serial UART C#](https://docs.microsoft.com/en-us/windows/iot-core/learn-about-hardware/pinmappings/pinmappingsrpi#serial-uart)
 - [Windows.Devices.SerialCommunication](https://docs.microsoft.com/en-us/uwp/api/windows.devices.serialcommunication)
 - [Windows.Devices.SerialCommunication.SerialDevice](https://docs.microsoft.com/en-us/uwp/api/windows.devices.serialcommunication.serialdevice})
+
+# PN532
+- https://cdn-shop.adafruit.com/datasheets/pn532ds.pdf
+- https://www.nxp.com/docs/en/nxp/data-sheets/PN532_C1.pdf
+- https://www.nxp.com/docs/en/user-guide/141520.pdf
