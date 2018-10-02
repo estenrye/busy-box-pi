@@ -424,45 +424,45 @@ namespace Adafruit_PN532
 
         public byte mifareclassic_AuthenticateBlock(byte[] uid, byte uidLen, uint blockNumber, byte keyNumber, byte[] keyData)
         {
-            ushort len;
-            ushort i;
+            //ushort len;
+            //ushort i;
 
-            // Hang on to the key and uid data
-            memcpy(_key, keyData, 6);
-            memcpy(_uid, uid, uidLen);
-            _uidLen = uidLen;
+            //// Hang on to the key and uid data
+            //memcpy(_key, keyData, 6);
+            //memcpy(_uid, uid, uidLen);
+            //_uidLen = uidLen;
 
-            PN532DEBUGPRINT.print(F("Trying to authenticate card "));
-            Adafruit_PN532::PrintHex(_uid, _uidLen);
-            PN532DEBUGPRINT.print(F("Using authentication KEY ")); PN532DEBUGPRINT.print(keyNumber ? 'B' : 'A'); PN532DEBUGPRINT.print(F(": "));
-            Adafruit_PN532::PrintHex(_key, 6);
+            //PN532DEBUGPRINT.print("Trying to authenticate card ");
+            //Adafruit_PN532::PrintHex(_uid, _uidLen);
+            //PN532DEBUGPRINT.print("Using authentication KEY "); PN532DEBUGPRINT.print(keyNumber ? 'B' : 'A'); PN532DEBUGPRINT.print(": ");
+            //Adafruit_PN532::PrintHex(_key, 6);
 
-            // Prepare the authentication command //
-            pn532_packetbuffer[0] = PN532_COMMAND_INDATAEXCHANGE;   /* Data Exchange Header */
-            pn532_packetbuffer[1] = 1;                              /* Max card numbers */
-            pn532_packetbuffer[2] = (keyNumber) ? MIFARE_CMD_AUTH_B : MIFARE_CMD_AUTH_A;
-            pn532_packetbuffer[3] = blockNumber;                    /* Block Number (1K = 0..63, 4K = 0..255 */
-            memcpy(pn532_packetbuffer + 4, _key, 6);
-            for (i = 0; i < _uidLen; i++)
-            {
-                pn532_packetbuffer[10 + i] = _uid[i];                /* 4 byte card ID */
-            }
+            //// Prepare the authentication command //
+            //pn532_packetbuffer[0] = Constants.PN532_COMMAND_INDATAEXCHANGE;   /* Data Exchange Header */
+            //pn532_packetbuffer[1] = 1;                              /* Max card numbers */
+            //pn532_packetbuffer[2] = (keyNumber) ? Constants.MIFARE_CMD_AUTH_B : Constants.MIFARE_CMD_AUTH_A;
+            //pn532_packetbuffer[3] = blockNumber;                    /* Block Number (1K = 0..63, 4K = 0..255 */
+            //memcpy(pn532_packetbuffer + 4, _key, 6);
+            //for (i = 0; i < _uidLen; i++)
+            //{
+            //    pn532_packetbuffer[10 + i] = _uid[i];                /* 4 byte card ID */
+            //}
 
-            if (!sendCommandCheckAck(pn532_packetbuffer, 10 + _uidLen))
-                return 0;
+            //if (!sendCommandCheckAck(pn532_packetbuffer, 10 + _uidLen))
+            //    return 0;
 
-            // Read the response packet
-            readdata(pn532_packetbuffer, 12);
+            //// Read the response packet
+            //readdata(pn532_packetbuffer, 12);
 
-            // check if the response is valid and we are authenticated???
-            // for an auth success it should be bytes 5-7: 0xD5 0x41 0x00
-            // Mifare auth error is technically byte 7: 0x14 but anything other and 0x00 is not good
-            if (pn532_packetbuffer[7] != 0x00)
-            {
-                PN532DEBUGPRINT.print(F("Authentification failed: "));
-                Adafruit_PN532::PrintHexChar(pn532_packetbuffer, 12);
-                return 0;
-            }
+            //// check if the response is valid and we are authenticated???
+            //// for an auth success it should be bytes 5-7: 0xD5 0x41 0x00
+            //// Mifare auth error is technically byte 7: 0x14 but anything other and 0x00 is not good
+            //if (pn532_packetbuffer[7] != 0x00)
+            //{
+            //    PN532DEBUGPRINT.print("Authentification failed: ");
+            //    Adafruit_PN532::PrintHexChar(pn532_packetbuffer, 12);
+            //    return 0;
+            //}
 
             return 1;
         }
