@@ -29,11 +29,14 @@
 
 #ifndef ADAFRUIT_PN532_H
 #define ADAFRUIT_PN532_H
-
+#include "pch.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "pch.h"
+#include "Utilities.h"
+#include "vccorlib.h"  // gives access to Platform namespace
+#include "windows.devices.enumeration.h"
+#include "windows.devices.spi.h"
 
 #define PN532_PREAMBLE                      (0x00)
 #define PN532_STARTCODE1                    (0x00)

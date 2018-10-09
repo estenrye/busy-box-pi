@@ -42,13 +42,17 @@
 			 uint8_t mifareultralight_ReadPage (uint8_t page, uint8_t * buffer)
 */
 /**************************************************************************/
-#include "pch.h"
 
+#include "pch.h"
 #include "Adafruit_PN532.h"
-#include "Utilities.h"
 
 #define delay Sleep
-char* HEX = "X";
+static char* HEX = "X";
+
+using namespace Platform;
+//using namespace ABI::Windows::Devices;
+using namespace ABI::Windows::Devices::Spi;
+using namespace ABI::Windows::Devices::Enumeration;
 
 byte pn532ack[] = { 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
 byte pn532response_firmwarevers[] = { 0x00, 0xFF, 0x06, 0xFA, 0xD5, 0x03 };
@@ -133,6 +137,7 @@ Adafruit_PN532::Adafruit_PN532(uint8_t irq, uint8_t reset)
 Adafruit_PN532::Adafruit_PN532(uint8_t ss)
 {
 	// TODO: implement this.
+	String^ spiDeviceSelector = SpiDevice::GetDeviceSelector();
 }
 
 /**************************************************************************/
